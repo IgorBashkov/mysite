@@ -38,6 +38,7 @@ def vote(request, question_id):
             'error_message': 'You did not select a choice.'
         })
     else:
+
         selected_choice.votes += 1
         selected_choice.save()
 

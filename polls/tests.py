@@ -91,11 +91,23 @@ class ChoiceModelTest(TestCase):
     def test_three_choices(self):
         past_question = create_question(question_text='Past question.', days=-5)
         for i in range(3):
-            create_choice(past_question, f'Variant #{i}')
+            ch = create_choice(past_question, f'Variant #{i}')
+
         url = reverse('polls:detail', args=(past_question.id,))
         response = self.client.get(url)
         for i in range(3):
             self.assertContains(response, f'Variant #{i}')
+
+
+class ChoiceVoteTest(TestCase):
+    def test_vote_for_first_choice(self):
+        past_question = create_question(question_text='Past question.', days=-5)
+        for i in range(3):
+            create_choice(past_question, f'Variant #{i}')
+        url = reverse('polls:vote', args=(past_question.id,))
+        response = self.client.post(url, {'choice': 2})
+        choice = Choice.objects.get(id=2)
+        self.assertEqual(choice.votes, 1)
 
 
 def create_question(question_text, days):
@@ -104,5 +116,5 @@ def create_question(question_text, days):
 
 
 def create_choice(question, text='Variant'):
-    Choice.objects.create(question=question, choice_text=text)
+    return Choice.objects.create(question=question, choice_text=text)
 
